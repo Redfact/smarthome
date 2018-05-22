@@ -1,13 +1,22 @@
 package fr.uvsq.pro.systemegestion;
-import java.awt.*;
-import java.io.IOException;
+import java.awt.Color;
 import java.lang.Integer;
-import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
 import java.util.Vector;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.JMenuBar;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JLayeredPane;
+import java.awt.Canvas;
+import javax.swing.JLabel;
+import java.awt.SystemColor;
+import java.awt.Font;
 import java.util.Timer;
 
 public class Interface implements ActionListener {
@@ -24,13 +33,12 @@ public class Interface implements ActionListener {
 	private JPanel simupanel = new JPanel();
 	private Vector<JButton> btpiece = new Vector<JButton>();
 	private Vector<JButton> btobjet = new Vector<JButton>();	
-	private Vector<Piece> piece = new Vector<Piece>();
-	private Vector<Objet> objets = new Vector<Objet>();
-	private Vector<Objet> objets_favoris = new Vector<Objet>(); 
+	private Vector<Piece> piece = new Vector<Piece>(); 
 	private Piece pieceactuelle;	
 	private Objet objetactuel = new Objet();
 	private entresortie donnee;
-		
+	
+	
 	public static void main(String[] args){
 					
 					Interface window = new Interface();
@@ -40,7 +48,6 @@ public class Interface implements ActionListener {
 	
 	public Interface(){
 		initialiseUI();
-	;
 	}
 
 	private void initialiseUI(){
@@ -91,78 +98,18 @@ public class Interface implements ActionListener {
 						menupanel.setVisible(true);		
 						objetpanel.setVisible(false);}}}});
 		
-		menupanel.setBounds(0, 0, 582, 697);
-		frame.getContentPane().add(menupanel);
-		menupanel.setLayout(null);
-		
-		JButton PIECE = new JButton("Afficher pieces");
-		PIECE.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				piecepanel.setVisible(true);
-				menupanel.setVisible(false);
-				objetpanel.setVisible(false);
-				simupanel.setVisible(false);
-				affiche_piece();}});
-		
-		PIECE.setBounds(12, 39, 162, 25);
-		menupanel.add(PIECE);
-		
-		JLabel lblMenus = new JLabel("Menus");
-		lblMenus.setBounds(12, 12, 70, 15);
-		menupanel.add(lblMenus);
-		
-		JButton btsimu = new JButton("Lancer simulateur");
-		btsimu.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				piecepanel.setVisible(false);
-				menupanel.setVisible(false);
-				objetpanel.setVisible(false);
-				simupanel.setVisible(true);
-				
-				affiche_simulateur();
-			}
-		});
-		btsimu.setBounds(12, 115, 162, 25);
-		menupanel.add(btsimu);
-		
-		JButton btfav = new JButton("Objets favoris");
-		btfav.addActionListener(new ActionListener() {
-			@SuppressWarnings("deprecation")
-			public void actionPerformed(ActionEvent e) {
-			menupanel.setVisible(false);
-			favorispanel.setVisible(true);
-			pieceactuelle=null;
-			favorispanel.enable();
-			listobjpanel.disable();
-			affiche_objet(donnee.ObjetFavoris,favorispanel);			
-			}
-		});
-		btfav.setBounds(12, 77, 162, 25);
-		menupanel.add(btfav);
-		
-		JButton btlistobj = new JButton("Liste objets ");
-		btlistobj.addActionListener(new ActionListener() {
-			@SuppressWarnings("deprecation")
-			public void actionPerformed(ActionEvent e) {
-				menupanel.setVisible(false);
-				listobjpanel.setVisible(true);
-				pieceactuelle=null;
-				favorispanel.disable();
-				listobjpanel.enable();
-				affiche_objet(donnee.getObjet(),listobjpanel);
-			}
-		});
-		btlistobj.setBounds(12, 153, 162, 25);
-		menupanel.add(btlistobj);
-		
 		
 		listobjpanel.setBounds(0, 0, 594, 697);
 		frame.getContentPane().add(listobjpanel);
 		listobjpanel.setVisible(false);
 		listobjpanel.setLayout(null);
+		
+		simupanel.setBounds(0, 0, 594, 697);
+		frame.getContentPane().add(simupanel);
+		simupanel.setLayout(null);
+		simupanel.setVisible(false);
 		infobjpanel.setBounds(0, 0, 594, 697);
 		frame.getContentPane().add(infobjpanel);
-		frame.setResizable(false);
 		infobjpanel.setLayout(null);
 		
 		
@@ -174,9 +121,13 @@ public class Interface implements ActionListener {
 		btnSupprimerObjet.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				supprime_objet(objetactuel);
-				infobjpanel.setVisible(false);
-				objetpanel.setVisible(true);
+				infobjpanel.setVisible(false);				
+				if( pieceactuelle != null ) {
 				affiche_objet(pieceactuelle.getObjetPiece(),objetcontent);
+				objetpanel.setVisible(true);}
+				else {listobjpanel.setVisible(true);
+				affiche_objet(donnee.getObjet(),listobjpanel);
+				}
 			}
 		});
 		btnSupprimerObjet.setBounds(415, 650, 155, 25);
@@ -203,13 +154,15 @@ public class Interface implements ActionListener {
 		JButton btmodifadr = new JButton("modifier");
 		btmodifadr.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String adr = JOptionPane.showInputDialog(piecepanel, "Changer l'adresse MAC", JOptionPane.QUESTION_MESSAGE);
-				
+				String adr = JOptionPane.showInputDialog(piecepanel, "Changer l'adresse MAC", JOptionPane.QUESTION_MESSAGE);			
 				if( adr != null ) {
+				if (contientAdrMAC(donnee.getObjet(),adr)) {
+					JOptionPane.showMessageDialog(infobjcontent, "Adresse MAC déja utilisée", "Information", JOptionPane.WARNING_MESSAGE);}
+				else {
 				objetactuel.ModifieAdresseMAC(adr);
 				infobjcontent.revalidate();
 				infobjcontent.repaint();
-				affiche_infos_objet(objetactuel);
+				affiche_infos_objet(objetactuel);}
 				}
 			}
 		});
@@ -223,7 +176,6 @@ public class Interface implements ActionListener {
 				String conso=JOptionPane.showInputDialog(piecepanel, "Changer la consommation de l'objet", JOptionPane.QUESTION_MESSAGE);
 				
 				if( conso != null) {
-				
 				objetactuel.ModifieConsommation(Integer.parseInt(conso));
 				infobjcontent.revalidate();
 				infobjcontent.repaint();
@@ -240,13 +192,12 @@ public class Interface implements ActionListener {
 			public void actionPerformed(ActionEvent e) {
 				String prt = JOptionPane.showInputDialog(piecepanel, "Changer priorite", JOptionPane.QUESTION_MESSAGE);
 				if( prt != null) {
-				objetactuel.ModifiePriorite(Integer.parseInt(prt));
-				infobjcontent.revalidate();
-				infobjcontent.repaint();
-				affiche_infos_objet(objetactuel);
-				}
-				
-			}
+					if(Integer.parseInt(prt)> 0 && Integer.parseInt(prt) < 4) {
+						objetactuel.ModifiePriorite(Integer.parseInt(prt));
+						infobjcontent.revalidate();
+						infobjcontent.repaint();
+						affiche_infos_objet(objetactuel);}
+					else {JOptionPane.showMessageDialog(infobjcontent, "Priorité comprise entre 1 et 3", "Information", JOptionPane.WARNING_MESSAGE);}}}
 		});
 		btmodifpriorite.setFont(new Font("Dialog", Font.BOLD, 10));
 		btmodifpriorite.setBounds(500, 220, 82, 20);
@@ -278,33 +229,6 @@ public class Interface implements ActionListener {
 		
 		infobjpanel.add(btaddfavoris);
 		infobjpanel.setVisible(false);
-		
-		piecepanel.setBounds(12, 0, 570, 697);
-		frame.getContentPane().add(piecepanel);
-		piecepanel.setLayout(null);
-		
-		piecepanel.setVisible(false);
-		
-		simupanel.setBounds(12, 25, 570, 710);
-		frame.getContentPane().add(simupanel);
-		simupanel.setLayout(null);
-		simupanel.setVisible(false);
-		
-		JButton btaddpiece = new JButton("ajout piece");
-		btaddpiece.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {			
-				ajout_piece();
-				piecepanel.revalidate();
-				piecepanel.repaint();
-				affiche_piece();
-				System.out.println("ajout piece");
-			}
-		});
-		btaddpiece.setBounds(344, 0, 117, 25);
-		piecepanel.add(btaddpiece);
-		piececontent.setBounds(-13, 25, 583, 672);
-		piecepanel.add(piececontent);
-		piececontent.setLayout(null);		
 		objetpanel.setBounds(0, 0, 594, 697);
 		frame.getContentPane().add(objetpanel);
 		objetpanel.setLayout(null);
@@ -358,6 +282,104 @@ public class Interface implements ActionListener {
 		});
 		btmodpiece.setBounds(301, 666, 117, 25);
 		objetpanel.add(btmodpiece);
+		
+		menupanel.setBounds(0, 0, 582, 697);
+		frame.getContentPane().add(menupanel);
+		menupanel.setLayout(null);
+		
+		JButton PIECE = new JButton("Afficher pieces");
+		PIECE.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				piecepanel.setVisible(true);
+				menupanel.setVisible(false);
+				objetpanel.setVisible(false);
+				simupanel.setVisible(false);
+				if(donnee !=null )affiche_piece();
+				else {JOptionPane.showMessageDialog(piecepanel, "Liste des pieces vide", "Information", JOptionPane.WARNING_MESSAGE);
+				menupanel.setVisible(true);
+				piecepanel.setVisible(false);
+				;}}}				
+		); 
+		
+		PIECE.setBounds(12, 39, 162, 25);
+		menupanel.add(PIECE);
+		
+		JLabel lblMenus = new JLabel("Menus");
+		lblMenus.setBounds(12, 12, 70, 15);
+		menupanel.add(lblMenus);
+		
+		JButton btsimu = new JButton("Lancer simulateur");
+		btsimu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				piecepanel.setVisible(false);
+				menupanel.setVisible(false);
+				objetpanel.setVisible(false);
+				simupanel.setVisible(true);
+				
+				affiche_simulateur();
+			}
+		});
+		btsimu.setBounds(12, 115, 162, 25);
+		menupanel.add(btsimu);
+		
+		JButton btfav = new JButton("Objets favoris");
+		btfav.addActionListener(new ActionListener() {
+			@SuppressWarnings("deprecation")
+			public void actionPerformed(ActionEvent e) {
+			menupanel.setVisible(false);
+			favorispanel.setVisible(true);
+			pieceactuelle=null;
+			favorispanel.enable();
+			listobjpanel.disable();
+			if(donnee !=null )affiche_objet(donnee.ObjetFavoris,favorispanel);
+			else {JOptionPane.showMessageDialog(favorispanel, "Aucun Favoris", "Information", JOptionPane.WARNING_MESSAGE);
+			menupanel.setVisible(true);
+			listobjpanel.setVisible(false);}}
+		});
+		btfav.setBounds(12, 77, 162, 25);
+		menupanel.add(btfav);
+		
+		JButton btlistobj = new JButton("Liste objets ");
+		btlistobj.addActionListener(new ActionListener() {
+			@SuppressWarnings("deprecation")
+			public void actionPerformed(ActionEvent e) {
+				menupanel.setVisible(false);
+				listobjpanel.setVisible(true);
+				pieceactuelle=null;
+				favorispanel.disable();
+				listobjpanel.enable();
+				if( donnee != null  )affiche_objet(donnee.getObjet(),listobjpanel);
+				else {JOptionPane.showMessageDialog(listobjpanel, "Liste Objet vide", "Information", JOptionPane.WARNING_MESSAGE);
+				menupanel.setVisible(true);
+				listobjpanel.setVisible(false);
+				}
+			}
+		});
+		btlistobj.setBounds(12, 153, 162, 25);
+		menupanel.add(btlistobj);
+		frame.setResizable(false);
+		
+		piecepanel.setBounds(12, 0, 570, 697);
+		frame.getContentPane().add(piecepanel);
+		piecepanel.setLayout(null);
+		
+		piecepanel.setVisible(false);
+		
+		JButton btaddpiece = new JButton("ajout piece");
+		btaddpiece.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {			
+				ajout_piece();
+				piecepanel.revalidate();
+				piecepanel.repaint();
+				affiche_piece();
+				System.out.println("ajout piece");
+			}
+		});
+		btaddpiece.setBounds(344, 0, 117, 25);
+		piecepanel.add(btaddpiece);
+		piececontent.setBounds(-13, 25, 583, 672);
+		piecepanel.add(piececontent);
+		piececontent.setLayout(null);		
 		
 
 		JMenuBar menuBar = new JMenuBar();
@@ -416,7 +438,7 @@ public class Interface implements ActionListener {
 		for( int i=0 ; i< btobjet.size() ; i++) {
 			if(e.getSource() ==  btobjet.elementAt(i) ) {		
 				if(pieceactuelle != null) {
-				//objetactuel =  pieceactuelle.getObjetPiece().elementAt(i);
+				objetactuel =  pieceactuelle.getObjetPiece().elementAt(i);
 				objetpanel.setVisible(false);
 				infobjpanel.setVisible(true);
 				}
@@ -446,11 +468,12 @@ public class Interface implements ActionListener {
 	public void ajout_piece(){ 	
 	    String nom = JOptionPane.showInputDialog(piecepanel, "Nom de la piece", JOptionPane.QUESTION_MESSAGE);
 	    
-	    if( nom != null ) {  
-	    piece.add(new Piece(nom,0));
+	    if( nom != null ) {
+	    if ( pieceExist(nom) != -1 )JOptionPane.showMessageDialog(piecepanel, "Piece déja existante", "Information", JOptionPane.WARNING_MESSAGE);
+	    else {
+	    piece.add(new Piece(nom,0,null));	 
 	    btpiece.addElement(new JButton(piece.lastElement().getNom()));
-	    btpiece.lastElement().addActionListener(this);}
-	       
+	    btpiece.lastElement().addActionListener(this);}}       
 	}
 
 	public void affiche_piece(){
@@ -514,7 +537,7 @@ public class Interface implements ActionListener {
 		int h=40;
 		
 		pan.removeAll();		
-		if ( p.isEmpty()  == false ) {				
+		if ( p.isEmpty()  == false && donnee!=null ) {				
 			setBtobjet(p);			
 			for(int i=0;i<btobjet.size();i++) {	
 				btobjet.elementAt(i).setBounds(20, y+5, 150, h-10);
@@ -545,52 +568,51 @@ public class Interface implements ActionListener {
 		JOptionPane jop = new JOptionPane();
 		if( !donnee.ObjetFavoris.contains(o) ) {
 		donnee.ObjetFavoris.addElement(o);
-		jop.showMessageDialog(null, "Objet ajouté dans les favoris", "Information", JOptionPane.INFORMATION_MESSAGE);
+		jop.showMessageDialog(null, "Objet ajoute dans les favoris", "Information", JOptionPane.INFORMATION_MESSAGE);
 		}
 		else {
 		donnee.ObjetFavoris.removeElement(o);
-		jop.showMessageDialog(null, "Objet supprimé des favoris", "Information", JOptionPane.WARNING_MESSAGE);
+		jop.showMessageDialog(null, "Objet supprime des favoris", "Information", JOptionPane.WARNING_MESSAGE);
 		}
 	}
 		
 	public void supprime_objet(Objet o) {
-		for(int i=0;i<donnee.getObjet().size();i++){
-			if(o.equals(donnee.getObjet().elementAt(i))){
-				donnee.getObjet().removeElementAt(i);
-			}
-		}
-		//pieceactuelle.getObjetPiece().remove(o);
+		for(Piece p : piece) {
+			if( p.getObjetPiece().contains(o)) {
+				p.getObjetPiece().remove(o);
+				break;}}
+		donnee.getObjet().remove(o);
+		if( donnee.ObjetFavoris.contains(o)  ) donnee.ObjetFavoris.remove(o);
+		if(pieceactuelle != null)pieceactuelle.getObjetPiece().remove(o);
+		
 	}
 
-	public void sauvegarder_fichier(){
-		
-		System.out.println("Lancer sauvegarde");
-		donnee.ecriture(donnee.NomFichier);		
+	public void sauvegarder_fichier(){		
+		System.out.println("Lancement sauvegarde");
+		if( donnee != null )donnee.ecriture(donnee.NomFichier);	
+		else JOptionPane.showMessageDialog(menupanel, "Aucun fichier importé", "Information", JOptionPane.WARNING_MESSAGE);
 	}
 	
 	@SuppressWarnings("static-access")
 	public void charger_sauvegarde(){
-		JOptionPane jop = new JOptionPane();
-		System.out.println("Charger sauvegarde");
-		donnee = new entresortie();
-		donnee.lecturefichier(donnee.NomFichier);
-		
-		if( !donnee.getObjet().isEmpty() ) {		
-		jop.showMessageDialog(menupanel, "Sauvegarde importée", "Information", JOptionPane.INFORMATION_MESSAGE);
+		JOptionPane jop = new JOptionPane();		
+		if(donnee!=null ) {
+		jop.showMessageDialog(menupanel, "Sauvegarde déja importee", "Information", JOptionPane.WARNING_MESSAGE);}
+		else {
+			System.out.println("Charger sauvegarde");
+			donnee = new entresortie();
+			donnee.lecturefichier(donnee.NomFichier);			
+		if( !donnee.getObjet().isEmpty() && donnee!=null ) {		
+		jop.showMessageDialog(menupanel, "Sauvegarde importee", "Information", JOptionPane.INFORMATION_MESSAGE);
 		initpiece(donnee.getObjet());	
 		setBtpiece();
-		AppelAutomatiqueRecuperationConsommation(10);
-		}
-		else jop.showMessageDialog(menupanel, "Erreur lors de l'importation de la sauvegarde", "Information", JOptionPane.WARNING_MESSAGE);
+		AppelAutomatiqueRecuperationConsommation(10);}
+		else jop.showMessageDialog(menupanel, "Erreur lors de l'importation de la sauvegarde", "Information", JOptionPane.WARNING_MESSAGE);}
 	}
 	
 	public void AppelAutomatiqueRecuperationConsommation(int s){
 		Timer t = new Timer();
 		t.schedule(new taskSauvegarde(this),1000,1000*s);		
-	}
-
-	public void affiche_conso_globale(){				
-		
 	}
 	
 	public void affiche_infos_objet(Objet o) {
@@ -620,7 +642,7 @@ public class Interface implements ActionListener {
 		priorite.setBounds(12,160, 200, 15);
 		infobjcontent.add(priorite);
 		
-		JLabel etat= new JLabel("Allumé: "+ o.getSwitch());
+		JLabel etat= new JLabel("AllumÃ©: "+ o.getSwitch());
 		etat.setBounds(12,190, 200, 15);
 		infobjcontent.add(etat);		
 	}
@@ -645,9 +667,7 @@ public class Interface implements ActionListener {
 		}
 		System.out.println("La consommation globale est" + consoG);			
 	}
-	   
-	public void AjoutObjetDansPiece (){
-	}
+
 	    	    
 	public void echanger(String a, String b){
 		String temp;
@@ -714,14 +734,11 @@ public class Interface implements ActionListener {
 		}
 		return false;
 	}
-  	  
-	public void lancerSimulateur(Simulateur sim){
-		}
 
 	public void initpiece(Vector<Objet> obj) {
 		for(Objet o : obj) {
 			if( pieceExist(o.getPiece()) == -1 ) {
-				piece.add(new Piece(o.getPiece(),0));
+				piece.add(new Piece(o.getPiece(),0,null));
 				piece.lastElement().getObjetPiece().add(o);
 			}
 			else if( pieceExist(o.getPiece()) != -1 ) {				
@@ -737,6 +754,13 @@ public class Interface implements ActionListener {
 			if( p.getNom().equals(nom)) return piece.indexOf(p);
 		}		
 	return -1;
+	}
+	
+	public boolean contientAdrMAC(Vector<Objet> obj, String adr) {
+		for(Objet o : obj  ) {
+		if ( o.getadresseMAC().equals(adr) )
+		return true ;}
+		return false;
 	}
 }
 
