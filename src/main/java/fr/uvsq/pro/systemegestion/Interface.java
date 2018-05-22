@@ -18,6 +18,8 @@ import javax.swing.JLabel;
 import java.awt.SystemColor;
 import java.awt.Font;
 import java.util.Timer;
+import javax.swing.ImageIcon;
+import javax.swing.SwingConstants;
 
 public class Interface implements ActionListener {
 	private JFrame frame;
@@ -56,7 +58,8 @@ public class Interface implements ActionListener {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		JButton btnRetour = new JButton("Retour");
-		btnRetour.setBounds(485, 703, 97, 25);
+		btnRetour.setIcon(new ImageIcon(Interface.class.getResource("/com/sun/javafx/scene/web/skin/Undo_16x16_JFX.png")));
+		btnRetour.setBounds(460, 703, 122, 28);
 		frame.getContentPane().add(btnRetour);
 		btnRetour.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -98,16 +101,86 @@ public class Interface implements ActionListener {
 						menupanel.setVisible(true);		
 						objetpanel.setVisible(false);}}}});
 		
+		menupanel.setBounds(0, 0, 582, 697);
+		frame.getContentPane().add(menupanel);
+		menupanel.setLayout(null);
 		
-		listobjpanel.setBounds(0, 0, 594, 697);
-		frame.getContentPane().add(listobjpanel);
-		listobjpanel.setVisible(false);
-		listobjpanel.setLayout(null);
+		JButton PIECE = new JButton("Afficher pieces");
+		PIECE.setHorizontalAlignment(SwingConstants.LEFT);
+		PIECE.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				piecepanel.setVisible(true);
+				menupanel.setVisible(false);
+				objetpanel.setVisible(false);
+				simupanel.setVisible(false);
+				if(donnee !=null )affiche_piece();
+				else {JOptionPane.showMessageDialog(piecepanel, "Liste des pieces vide", "Information", JOptionPane.WARNING_MESSAGE);
+				menupanel.setVisible(true);
+				piecepanel.setVisible(false);
+				;}}}				
+		); 
 		
-		simupanel.setBounds(0, 0, 594, 697);
-		frame.getContentPane().add(simupanel);
-		simupanel.setLayout(null);
-		simupanel.setVisible(false);
+		PIECE.setBounds(12, 39, 162, 25);
+		menupanel.add(PIECE);
+		
+		JLabel lblMenus = new JLabel("Menus");
+		lblMenus.setBounds(12, 12, 70, 15);
+		menupanel.add(lblMenus);
+		
+		JButton btsimu = new JButton("Lancer simulateur");
+		btsimu.setHorizontalAlignment(SwingConstants.LEFT);
+		btsimu.setIcon(new ImageIcon("src\\play-256.png"));
+		btsimu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				piecepanel.setVisible(false);
+				menupanel.setVisible(false);
+				objetpanel.setVisible(false);
+				simupanel.setVisible(true);
+				
+				affiche_simulateur();
+			}
+		});
+		btsimu.setBounds(12, 115, 162, 25);
+		menupanel.add(btsimu);
+		
+		JButton btfav = new JButton("Objets favoris");
+		btfav.setHorizontalAlignment(SwingConstants.LEFT);
+		btfav.setIcon(new ImageIcon("src\\fa1v.png"));
+		btfav.addActionListener(new ActionListener() {
+			@SuppressWarnings("deprecation")
+			public void actionPerformed(ActionEvent e) {
+			menupanel.setVisible(false);
+			favorispanel.setVisible(true);
+			pieceactuelle=null;
+			favorispanel.enable();
+			listobjpanel.disable();
+			if(donnee !=null )affiche_objet(donnee.ObjetFavoris,favorispanel);
+			else {JOptionPane.showMessageDialog(favorispanel, "Aucun Favoris", "Information", JOptionPane.WARNING_MESSAGE);
+			menupanel.setVisible(true);
+			listobjpanel.setVisible(false);}}
+		});
+		btfav.setBounds(12, 77, 162, 25);
+		menupanel.add(btfav);
+		
+		JButton btlistobj = new JButton("Liste objets ");
+		btlistobj.setHorizontalAlignment(SwingConstants.LEFT);
+		btlistobj.addActionListener(new ActionListener() {
+			@SuppressWarnings("deprecation")
+			public void actionPerformed(ActionEvent e) {
+				menupanel.setVisible(false);
+				listobjpanel.setVisible(true);
+				pieceactuelle=null;
+				favorispanel.disable();
+				listobjpanel.enable();
+				if( donnee != null  )affiche_objet(donnee.getObjet(),listobjpanel);
+				else {JOptionPane.showMessageDialog(listobjpanel, "Liste Objet vide", "Information", JOptionPane.WARNING_MESSAGE);
+				menupanel.setVisible(true);
+				listobjpanel.setVisible(false);
+				}
+			}
+		});
+		btlistobj.setBounds(12, 153, 162, 25);
+		menupanel.add(btlistobj);
 		infobjpanel.setBounds(0, 0, 594, 697);
 		frame.getContentPane().add(infobjpanel);
 		infobjpanel.setLayout(null);
@@ -117,7 +190,8 @@ public class Interface implements ActionListener {
 		infobjpanel.add(infobjcontent);
 		infobjcontent.setLayout(null);
 		
-		JButton btnSupprimerObjet = new JButton("supprimer objet");
+		JButton btnSupprimerObjet = new JButton("");
+		btnSupprimerObjet.setIcon(new ImageIcon("src\\corb.png"));
 		btnSupprimerObjet.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				supprime_objet(objetactuel);
@@ -130,7 +204,7 @@ public class Interface implements ActionListener {
 				}
 			}
 		});
-		btnSupprimerObjet.setBounds(415, 650, 155, 25);
+		btnSupprimerObjet.setBounds(517, 13, 65, 38);
 		infobjpanel.add(btnSupprimerObjet);
 		
 		JButton btmodifnom = new JButton("modifier");
@@ -216,19 +290,31 @@ public class Interface implements ActionListener {
 				
 			}
 		});
-		btonoff.setBounds(500, 253, 82, 20);
+		btonoff.setBounds(500, 256, 82, 20);
 		infobjpanel.add(btonoff);
 		
-		JButton btaddfavoris = new JButton("Favoris");
+		JButton btaddfavoris = new JButton("");
+		btaddfavoris.setIcon(new ImageIcon("src\\fa1v.png"));
 		btaddfavoris.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			ajout_objet_favoris(objetactuel);
 			}
 		});
-		btaddfavoris.setBounds(12, 13, 117, 25);
+		btaddfavoris.setBounds(12, 13, 65, 38);
 		
 		infobjpanel.add(btaddfavoris);
 		infobjpanel.setVisible(false);
+		
+		
+		listobjpanel.setBounds(0, 0, 594, 697);
+		frame.getContentPane().add(listobjpanel);
+		listobjpanel.setVisible(false);
+		listobjpanel.setLayout(null);
+		
+		simupanel.setBounds(0, 0, 594, 697);
+		frame.getContentPane().add(simupanel);
+		simupanel.setLayout(null);
+		simupanel.setVisible(false);
 		objetpanel.setBounds(0, 0, 594, 697);
 		frame.getContentPane().add(objetpanel);
 		objetpanel.setLayout(null);
@@ -282,81 +368,6 @@ public class Interface implements ActionListener {
 		});
 		btmodpiece.setBounds(301, 666, 117, 25);
 		objetpanel.add(btmodpiece);
-		
-		menupanel.setBounds(0, 0, 582, 697);
-		frame.getContentPane().add(menupanel);
-		menupanel.setLayout(null);
-		
-		JButton PIECE = new JButton("Afficher pieces");
-		PIECE.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				piecepanel.setVisible(true);
-				menupanel.setVisible(false);
-				objetpanel.setVisible(false);
-				simupanel.setVisible(false);
-				if(donnee !=null )affiche_piece();
-				else {JOptionPane.showMessageDialog(piecepanel, "Liste des pieces vide", "Information", JOptionPane.WARNING_MESSAGE);
-				menupanel.setVisible(true);
-				piecepanel.setVisible(false);
-				;}}}				
-		); 
-		
-		PIECE.setBounds(12, 39, 162, 25);
-		menupanel.add(PIECE);
-		
-		JLabel lblMenus = new JLabel("Menus");
-		lblMenus.setBounds(12, 12, 70, 15);
-		menupanel.add(lblMenus);
-		
-		JButton btsimu = new JButton("Lancer simulateur");
-		btsimu.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				piecepanel.setVisible(false);
-				menupanel.setVisible(false);
-				objetpanel.setVisible(false);
-				simupanel.setVisible(true);
-				
-				affiche_simulateur();
-			}
-		});
-		btsimu.setBounds(12, 115, 162, 25);
-		menupanel.add(btsimu);
-		
-		JButton btfav = new JButton("Objets favoris");
-		btfav.addActionListener(new ActionListener() {
-			@SuppressWarnings("deprecation")
-			public void actionPerformed(ActionEvent e) {
-			menupanel.setVisible(false);
-			favorispanel.setVisible(true);
-			pieceactuelle=null;
-			favorispanel.enable();
-			listobjpanel.disable();
-			if(donnee !=null )affiche_objet(donnee.ObjetFavoris,favorispanel);
-			else {JOptionPane.showMessageDialog(favorispanel, "Aucun Favoris", "Information", JOptionPane.WARNING_MESSAGE);
-			menupanel.setVisible(true);
-			listobjpanel.setVisible(false);}}
-		});
-		btfav.setBounds(12, 77, 162, 25);
-		menupanel.add(btfav);
-		
-		JButton btlistobj = new JButton("Liste objets ");
-		btlistobj.addActionListener(new ActionListener() {
-			@SuppressWarnings("deprecation")
-			public void actionPerformed(ActionEvent e) {
-				menupanel.setVisible(false);
-				listobjpanel.setVisible(true);
-				pieceactuelle=null;
-				favorispanel.disable();
-				listobjpanel.enable();
-				if( donnee != null  )affiche_objet(donnee.getObjet(),listobjpanel);
-				else {JOptionPane.showMessageDialog(listobjpanel, "Liste Objet vide", "Information", JOptionPane.WARNING_MESSAGE);
-				menupanel.setVisible(true);
-				listobjpanel.setVisible(false);
-				}
-			}
-		});
-		btlistobj.setBounds(12, 153, 162, 25);
-		menupanel.add(btlistobj);
 		frame.setResizable(false);
 		
 		piecepanel.setBounds(12, 0, 570, 697);
@@ -769,6 +780,12 @@ public class Interface implements ActionListener {
 		return false;
 	}
 }
+
+
+
+
+
+
 
 
 
