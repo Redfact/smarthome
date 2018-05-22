@@ -718,26 +718,6 @@ public class Interface implements ActionListener {
 	public void lancerSimulateur(Simulateur sim){
 		}
 
-	public void init_vect_piece(Vector<Objet> obj) {
-		int t=-1;
-		for(Objet o : obj) {
-			if( piece.isEmpty() ) {
-				piece.add(new Piece(o.getPiece(),0));
-				piece.firstElement().getObjetPiece().addElement(o);}
-			else {
-				for(Piece p : piece) {
-					if( o.getPiece().equals(p.getNom())  ) {
-						p.getObjetPiece().add(o);
-						t=1;}
-					else t = 0;
-				}
-			if ( t == 0) {
-				piece.add(new Piece(o.getPiece(),0));
-				piece.lastElement().getObjetPiece().addElement(o);
-				}				
-			}
-		}
-		}
 	public void initpiece(Vector<Objet> obj) {
 		for(Objet o : obj) {
 			if( pieceExist(o.getPiece()) == -1 ) {
