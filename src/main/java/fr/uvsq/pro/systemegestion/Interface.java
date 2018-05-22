@@ -42,7 +42,7 @@ public class Interface implements ActionListener {
 	public static void main(String[] args){
 					
 					Interface window = new Interface();
-					window.frame.setVisible(true);	
+					window.frame.setVisible(true);						
 					
 	}
 	
@@ -492,10 +492,12 @@ public class Interface implements ActionListener {
 	public void affiche_simulateur() {
 		JButton consoj = new JButton("ConsoJour");
 		consoj.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {			
-				//affiche la graphe 
-			}
-		});
+			public void actionPerformed(ActionEvent e) {
+				traitement_donnees t;
+				if(donnee != null ) t = new traitement_donnees("Consommation jours ",donnee.ConsoJour,5000);
+				else JOptionPane.showMessageDialog(simupanel, "Aucune donnée n'a été importée !", "Information", JOptionPane.WARNING_MESSAGE);
+			
+		}});
 		consoj.setBounds(15,100,180,115);
 		consoj.setBackground(Color.BLACK);
 		consoj.setForeground(Color.LIGHT_GRAY);
@@ -504,7 +506,9 @@ public class Interface implements ActionListener {
 		JButton consos = new JButton("ConsoSemaine");
 		consos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {			
-				//affiche la graphe 
+				traitement_donnees t;
+				if(donnee != null ) t = new traitement_donnees("Consommation de la semaine ",donnee.ConsoSemaine,5000);
+				else JOptionPane.showMessageDialog(simupanel, "Aucune donnée n'a été importée !", "Information", JOptionPane.WARNING_MESSAGE);
 			}
 		});
 		consos.setBounds(15,225,180,115);
@@ -515,7 +519,9 @@ public class Interface implements ActionListener {
 		JButton consom = new JButton("ConsoMois");
 		consom.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {			
-				//affiche la graphe 
+				traitement_donnees t;
+				if(donnee != null ) t = new traitement_donnees("Consommation du mois ",donnee.ConsoMois,15000);
+				else JOptionPane.showMessageDialog(simupanel, "Aucune donnée n'a été importée !", "Information", JOptionPane.WARNING_MESSAGE);
 			}
 		});
 		consom.setBounds(15,350,180,115);
@@ -763,6 +769,7 @@ public class Interface implements ActionListener {
 		return false;
 	}
 }
+
 
 
 
